@@ -1,27 +1,29 @@
+var cep = document.getElementById('cep');
+var cidade = document.getElementById('cidade');
+var logradouro = document.getElementById('endereco');
+var estado = document.getElementById('estado');
+var bairro = document.getElementById('bairro');
+var complemento = document.getElementById('complemento');
+
 async function buscaEndereco(cep) {
-    var mensagemErro = document.getElementById('erro');
-    mensagemErro.innerHTML = "";
+    var erroCEP = document.getElementById('erro');
+    erroCEP.innerHTML = "";
     try {
-        var consultaCEP = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        var consultaCEPConvertida = await consultaCEP.json();
-        if (consultaCEPConvertida.erro) {
-            throw Error('CEP não existente!');
+        var consulta = await fetch(`https://viacep.com.br/ws/${cep}/json`);
+        var consultaJSON = await consulta.json();
+        if (consultaJSON.erro) {
+            throw Error(alert("CEP não existente."));
         }
-        var cidade = document.getElementById('cidade');
-        var logradouro = document.getElementById('endereco');
-        var estado = document.getElementById('estado');
+        cidade.value = consultaJSON.localidade;
+        logradouro.value = consultaJSON.logradouro;
+        estado.value = consultaJSON.uf;
+        bairro.value = consultaJSON.bairro;
+        complemento.value = consultaJSON.complemento;
 
-        cidade.value = consultaCEPConvertida.localidade;
-        logradouro.value = consultaCEPConvertida.logradouro;
-        estado.value = consultaCEPConvertida.uf;
-
-        console.log(consultaCEPConvertida);
-        return consultaCEPConvertida;
-    } catch (erro) {
-        mensagemErro.innerHTML = `<p>CEP inválido. Tente novamente!</p>`
-        console.log(erro);
+        return consultaJSON;
+    } catch (errado) {
+        erroCEP.innerHTML = "<p>CEP inválido, confira e digite novamente!</p>";
     }
 }
 
-var cep = document.getElementById('cep');
 cep.addEventListener("focusout", () => buscaEndereco(cep.value));
